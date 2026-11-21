@@ -1,0 +1,100 @@
+<view class="app-root">
+  <view class="glow glow-one"></view>
+  <view class="glow glow-two"></view>
+  <view class="header" style="padding-top: {{topPadding}}px; padding-right: {{rightPadding}}px;">
+    <view class="brand">
+      <view class="brand-symbol">✦</view>
+      <view>
+        <view class="brand-cn">奇有此理</view>
+      </view>
+    </view>
+    <view class="header-actions">
+      <view class="stat-pill" bindtap="onOpenStats">◎ 我的战绩</view>
+    </view>
+  </view>
+
+  <swiper class="feed-swiper" vertical="{{true}}" current="{{current}}" duration="300"
+    indicator-dots="{{false}}" circular="{{false}}" bindchange="onSlideChange">
+    <swiper-item wx:for="{{feed}}" wx:key="uid" wx:for-item="item" wx:for-index="feedIndex">
+      <view class="slide">
+        <view class="slide-meta">
+          <view class="category"><text>{{item.icon}}</text><text>{{item.category}}</text></view>
+          <view class="number">#{{feedIndex + 1}} <text class="meta-sep">·</text> {{item.difficulty}}</view>
+        </view>
+        <view class="question-card">
+          <view class="card-label"><view class="tiny-dot"></view>{{item.typeLabel}}</view>
+          <view class="question-text">{{item.title}}</view>
+          <view class="question-subtitle">{{item.subtitle}}</view>
+
+          <view wx:if="{{item.type == 'choice'}}" class="choices">
+            <view wx:for="{{item.options}}" wx:key="*this" wx:for-item="opt" wx:for-index="optionIndex"
+              data-feed-index="{{feedIndex}}" data-option-index="{{optionIndex}}"
+              bindtap="onChoose"
+              class="choice-option {{item.answered &amp;&amp; item.answer == optionIndex ? 'is-correct' : ''}} {{item.answered &amp;&amp; item.selected == optionIndex &amp;&amp; !item.correct ? 'is-wrong' : ''}}">
+              <view class="letter">{{item.optionLetters[optionIndex]}}</view>
+              <view class="choice-name">{{opt}}</view>
+              <view wx:if="{{item.answered &amp;&amp; item.answer == optionIndex}}" class="choice-symbol">✓</view>
+              <view wx:elif="{{item.answered &amp;&amp; item.selected == optionIndex}}" class="choice-symbol">×</view>
+            </view>
+          </view>
+
+          <view wx:elif="{{item.type == 'visual'}}" class="visual-wrap">
+            <view class="visual-grid">
+              <view wx:for="{{item.tiles}}" wx:key="id" wx:for-item="tile" wx:for-index="tileIndex"
+                class="visual-tile {{item.answered &amp;&amp; item.answer == tileIndex ? 'tile-correct' : ''}} {{item.answered &amp;&amp; item.selected == tileIndex &amp;&amp; !item.correct ? 'tile-wrong' : ''}}"
+                data-feed-index="{{feedIndex}}" data-tile-index="{{tileIndex}}" bindtap="onVisual">{{tile.label}}</view>
+            </view>
+          </view>
+
+          <view wx:elif="{{item.type == 'sequence'}}" class="sequence-wrap">
+            <view class="sequence-hint">顺序 <text>{{item.pickedOrder.length}}</text> / {{item.options.length}} <text class="seq-reset" data-feed-index="{{feedIndex}}" bindtap="onResetSequence">↶ 重选</text></view>
+            <view class="sequence-grid">
+              <view wx:for="{{item.options}}" wx:key="*this" wx:for-item="opt" wx:for-index="optionIndex"
+                class="sequence-option {{item.marks[optionIndex] ? 'selected' : ''}}"
+                data-feed-index="{{feedIndex}}" data-option-index="{{optionIndex}}" bindtap="onSequence">
+                <view class="sequence-order">{{item.marks[optionIndex] ? item.marks[optionIndex] : '+'}}</view>
+                <view>{{opt}}</view>
+              </view>
+            </view>
+          </view>
+
+          <view wx:if="{{item.answered}}" class="result-panel">
+            <view class="result-heading {{item.correct ? 'result-success' : 'result-fail'}}">{{item.correct ? '✓' : '↗'}} {{item.feedbackTitle}}</view>
+            <view wx:if="{{!item.correct}}" class="correct-solution">正确答案：{{item.solution}}</view>
+            <view class="explanation">{{item.explanation}}</view>
+            <view class="result-next" bindtap="onNext">再来一题 <text>↑</text></view>
+          </view>
+        </view>
+        <view class="slide-foot">
+          <view wx:if="{{!item.answered}}" class="swipe-cue"><text class="cue-arrow">↑</text> 不会也没关系，上滑就能换一题</view>
+          <view wx:else="" class="swipe-cue"><text class="cue-arrow">↑</text> 继续探索下一题</view>
+        </view>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <view wx:if="{{feed.length > 0}}" class="bottom-actions">
+    <view class="action" bindtap="onToggleFavorite"><text class="action-icon {{feed[current].favorite ? 'favorited' : ''}}">{{feed[current].favorite ? '♥' : '♡'}}</text><text>收藏</text></view>
+    <button class="action share-action" open-type="share" data-question-id="{{feed[current].id}}"><text class="action-icon">↗</text><text>分享</text></button>
+    <view class="action" bindtap="onFeedback"><text class="action-icon">⋯</text><text>反馈</text></view>
+    <view class="next-button" bindtap="onNext">下一题 <text>↑</text></view>
+  </view>
+  <view class="safe-area"></view>
+
+  <view wx:if="{{showStats}}" class="stats-backdrop" bindtap="onCloseStats">
+    <view class="stats-sheet" catchtap="noop">
+      <view class="stats-handle"></view>
+      <view class="stats-title">你的脑力探索记录 <text class="stats-close" bindtap="onCloseStats">✕</text></view>
+      <view class="stats-desc">这只是探索，不是考试。</view>
+      <view class="stats-grid">
+        <view class="stat-cell"><view class="stat-value">{{totalViewed}}</view><view class="stat-name">浏览题数</view></view>
+        <view class="stat-cell"><view class="stat-value">{{totalAnswered}}</view><view class="stat-name">完成作答</view></view>
+        <view class="stat-cell"><view class="stat-value">{{correctAnswered}}</view><view class="stat-name">回答正确</view></view>
+        <view class="stat-cell"><view class="stat-value">{{favoritesCount}}</view><view class="stat-name">收藏题目</view></view>
+      </view>
+      <view class="stats-note">最感兴趣的领域：{{topCategory}}</view>
+      <view class="stats-privacy">隐私说明：第一版的行为记录、收藏、偏好都保存在当前设备，不上传服务器。</view>
+      <view class="stats-done" bindtap="onCloseStats">继续探索 ↑</view>
+    </view>
+  </view>
+</view>

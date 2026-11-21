@@ -1,0 +1,12 @@
+{
+  "description": "奇有此理｜一屏一题，上滑下一题",
+  "packOptions": {"ignore": [{"type":"file","value":"README.md"},{"type":"folder","value":"web-demo"},{"type":"folder","value":"tests"},{"type":"folder","value":"docs"},{"type":"file","value":"_generate_data.py"},{"type":"file","value":"data/questions.json"}]},
+  "setting": {"es6": true, "enhance": true, "postcss": true, "minified": false, "compileHotReLoad": true},
+  "compileType": "miniprogram",
+  "libVersion": "3.5.6",
+  "appid": "touristappid",
+  "projectname": "奇有此理",
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {}
+}
