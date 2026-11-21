@@ -1,0 +1,46 @@
+{
+  "description": "奇有此理微信小游戏",
+  "projectname": "奇有此理",
+  "compileType": "game",
+  "appid": "wxc7b5413e2523dac9",
+  "setting": {
+    "es6": true,
+    "minified": false
+  },
+  "packOptions": {
+    "ignore": [
+      {
+        "value": "reference",
+        "type": "folder"
+      },
+      {
+        "value": "docs",
+        "type": "folder"
+      },
+      {
+        "value": "tests",
+        "type": "folder"
+      },
+      {
+        "value": "AGENTS.md",
+        "type": "file"
+      },
+      {
+        "value": "CODEX_START.md",
+        "type": "file"
+      },
+      {
+        "value": "PRODUCT_AND_TECH_SPEC.md",
+        "type": "file"
+      },
+      {
+        "value": "README.md",
+        "type": "file"
+      },
+      {
+        "value": "package.json",
+        "type": "file"
+      }
+    ]
+  }
+}

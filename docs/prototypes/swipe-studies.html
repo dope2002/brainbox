@@ -1,0 +1,369 @@
+<div id="swipe-studies" lang="zh-CN">
+  <div class="study-tabs" aria-label="切换试玩方案"></div>
+  <div class="study-grid"></div>
+  <p class="study-status" aria-live="polite"></p>
+</div>
+<style>
+#swipe-studies { font-family:"PingFang SC","Microsoft YaHei",sans-serif; width:100%; color:var(--foreground,#302e2a); }
+#swipe-studies * { box-sizing:border-box; }
+#swipe-studies button { font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+#swipe-studies .study-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; max-width:1100px; margin:auto; }
+#swipe-studies .study-tabs { display:none; }
+#swipe-studies .study-status { text-align:center; font-size:13px; margin:8px 0 0; }
+#swipe-studies .study-status:empty { display:none; }
+#swipe-studies .study { min-width:0; }
+#swipe-studies .study-heading { display:flex; align-items:baseline; justify-content:space-between; gap:6px; margin:4px 2px 10px; }
+#swipe-studies .study-heading h3 { font-size:17px; font-weight:650; margin:0; color:inherit; }
+#swipe-studies .pick { border:0; background:transparent; color:inherit; text-decoration:underline; text-underline-offset:3px; font-size:13px; padding:6px 2px; }
+#swipe-studies .pick[aria-pressed=true] { font-weight:bold; }
+#swipe-studies .screen { position:relative; overflow:hidden; isolation:isolate; height:608px; border-radius:22px; touch-action:none; user-select:none; container-type:inline-size; background:var(--base); color:var(--ink); box-shadow:inset 0 0 0 1px #5552; cursor:grab; }
+#swipe-studies .screen:active { cursor:grabbing; }
+#swipe-studies .track { height:100%; will-change:transform; }
+#swipe-studies .sheet { position:relative; width:100%; height:100%; overflow:hidden; background:var(--base); color:var(--ink); padding:17px 19px 12px; display:flex; flex-direction:column; }
+#swipe-studies .sheet:nth-child(2) { background:var(--second); }
+#swipe-studies .sheet:nth-child(3) { background:var(--third); }
+#swipe-studies .mast { display:flex; justify-content:space-between; align-items:center; flex:none; height:27px; }
+#swipe-studies .brand { font-family:"Songti SC","SimSun",serif; font-weight:bold; letter-spacing:.09em; font-size:18px; }
+#swipe-studies .counter { display:flex; align-items:center; gap:6px; font:12px/1.1 "Courier New",monospace; letter-spacing:.08em; color:var(--muted); }
+#swipe-studies .counter i { height:1px; width:16px; background:currentColor; opacity:.5; transform:rotate(-48deg); }
+#swipe-studies .art { display:block; width:calc(100% + 38px); margin:5px -19px 0; height:158px; flex:1 1 158px; min-height:96px; max-height:190px; object-fit:cover; pointer-events:none; }
+#swipe-studies .copy { padding:13px 0 12px; flex:none; }
+#swipe-studies .meta { font-size:12px; letter-spacing:.1em; color:var(--muted); margin-bottom:8px; }
+#swipe-studies .title { font-family:"Songti SC","STSong","SimSun",serif; font-size:clamp(22px,8cqw,32px); line-height:1.3; font-weight:bold; letter-spacing:.015em; margin:0; color:var(--ink); }
+#swipe-studies .clue { margin:6px 0 0; font:500 clamp(17px,6.1cqw,25px)/1.35 Georgia,"Songti SC","SimSun",serif; color:var(--ink); font-variant-numeric:tabular-nums; }
+#swipe-studies .answers { display:grid; grid-template-columns:1fr 1fr; gap:8px; flex:none; }
+#swipe-studies .answer { display:flex; position:relative; align-items:center; justify-content:center; width:100%; min-height:47px; padding:8px 9px 8px 25px; font-size:20px; font-family:Georgia,"Songti SC","SimSun",serif; background:var(--tile); color:var(--ink); border:1px solid var(--edge); border-radius:7px; line-height:1.12; }
+#swipe-studies .answer small { position:absolute; left:9px; font:11px/1.2 "Courier New",monospace; color:var(--muted); }
+#swipe-studies .answer[data-mark] { box-shadow:inset 0 0 0 1px currentColor; }
+#swipe-studies .answer[data-mark=right] { background:var(--yes-bg); color:var(--yes); }
+#swipe-studies .answer[data-mark=wrong] { background:var(--no-bg); color:var(--no); }
+#swipe-studies .answer[data-mark]::after { content:attr(data-icon); margin-left:5px; font-family:sans-serif; font-size:14px; }
+#swipe-studies .outcome { flex:none; min-height:49px; margin:9px 0 0; font-size:13px; line-height:1.5; color:var(--muted); }
+#swipe-studies .outcome strong { color:var(--ink); font-weight:600; }
+#swipe-studies .foot { margin:auto 0 0; padding-top:4px; text-align:center; color:var(--muted); font-size:11px; letter-spacing:.08em; }
+#swipe-studies .foot::before { content:""; display:block; width:27px; height:2px; margin:0 auto 5px; border-radius:2px; background:currentColor; opacity:.65; }
+#swipe-studies .mist { --base:#edf0e7; --second:#e6ebe4; --third:#eceee1; --ink:#253e38; --muted:#51675e; --edge:#b5c5b7; --tile:#f6f7f0; --yes:#28594b; --yes-bg:#d9e8d9; --no:#853f39; --no-bg:#f0deda; }
+#swipe-studies .mist .copy { border-top:1px solid var(--edge); }
+#swipe-studies .mist .meta::before { content:""; display:inline-block; width:13px; height:2px; margin-right:7px; vertical-align:middle; background:#a76d4e; }
+#swipe-studies .print { --base:#f6efdf; --second:#f3e7d8; --third:#eeeada; --ink:#493a32; --muted:#765e4d; --edge:#cfbaa2; --tile:transparent; --yes:#305b43; --yes-bg:#e1ead5; --no:#823e31; --no-bg:#f0d9cc; }
+#swipe-studies .print .mast { border-bottom:2px solid var(--ink); padding-bottom:7px; height:33px; }
+#swipe-studies .print .brand { letter-spacing:.19em; }
+#swipe-studies .print .copy { order:1; padding:14px 0 8px; }
+#swipe-studies .print .art { order:2; width:100%; margin:0 0 10px; flex-basis:92px; min-height:63px; max-height:131px; border-block:1px solid var(--edge); }
+#swipe-studies .print .answers { order:3; grid-template-columns:1fr; gap:0; border-top:1px solid var(--ink); }
+#swipe-studies .print .answer { min-height:44px; justify-content:flex-start; border:0; border-bottom:1px solid var(--edge); border-radius:0; padding-left:44px; }
+#swipe-studies .print .answer small { background:var(--ink); color:var(--base); border-radius:50%; width:18px; height:18px; display:grid; place-items:center; }
+#swipe-studies .print .outcome { order:4; }
+#swipe-studies .print .foot { order:5; }
+#swipe-studies .night { --base:#1c3039; --second:#24343e; --third:#223936; --ink:#e2e6dd; --muted:#aabcb8; --edge:#506770; --tile:#2a404a; --yes:#c5e4d3; --yes-bg:#304e48; --no:#f0cfb8; --no-bg:#514241; }
+#swipe-studies .night .counter { color:#debc87; }
+#swipe-studies .night .copy { text-align:center; padding-bottom:18px; }
+#swipe-studies .night .meta { color:#dfc18c; }
+#swipe-studies .night .title { font-family:"PingFang SC","Microsoft YaHei",sans-serif; font-weight:500; letter-spacing:.04em; }
+#swipe-studies .night .clue { letter-spacing:.03em; }
+#swipe-studies .night .answer { border-radius:25px; }
+#swipe-studies .night .outcome { text-align:center; }
+@media(max-width:799px) {
+  #swipe-studies .study-grid { display:block; max-width:423px; }
+  #swipe-studies .study:not([data-visible=true]) { display:none; }
+  #swipe-studies .study-tabs { display:flex; justify-content:center; gap:6px; margin:0 auto 9px; }
+  #swipe-studies .study-tabs button { padding:8px 11px; min-height:44px; background:transparent; color:inherit; border:0; border-bottom:2px solid transparent; font-size:14px; }
+  #swipe-studies .study-tabs button[aria-pressed=true] { border-color:currentColor; font-weight:bold; }
+  #swipe-studies .screen { height:570px; }
+  #swipe-studies .study-heading { margin-bottom:6px; }
+}
+@media(pointer:coarse) { #swipe-studies .pick { min-height:44px; } }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('swipe-studies');
+  const designs = [
+    { key:'mist', name:'山雾青' },
+    { key:'print', name:'杏仁纸' },
+    { key:'night', name:'月下蓝' }
+  ];
+  const questions = [
+    { kind:'数字规律', title:'下一项是什么？', clue:'2，5，8，11，…', options:['12','13','14','15'], correct:2, why:'每次加 3，下一项就是 14。' },
+    { kind:'逻辑推理', title:'谁站在最前面？', clue:'小禾在阿宁前面，阿宁在小满前面。', options:['小满','阿宁','小禾'], correct:2, why:'队伍从前到后是小禾、阿宁、小满。' },
+    { kind:'汉字语言', title:'哪一个字藏着月亮？', clue:'找出含有「月」部件的字。', options:['林','明','休','品'], correct:1, why:'「明」由左边的日和右边的月组成。' }
+  ];
+
+  // Three small original print illustrations. The seed is tied to the question so
+  // revisiting a page restores its scene without requesting any external assets.
+  function illustrate(canvas, style, page) {
+    const w = 600, h = 240;
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    let seed = 724 + page * 103;
+    const random = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    function line(x1,y1,x2,y2,color,weight=1) {
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle=color; ctx.lineWidth=weight; ctx.stroke();
+    }
+    function disk(x,y,r,color) {
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle=color; ctx.fill();
+    }
+    function wave(x, level) {
+      const z = x / 600;
+      return 114 + 27*level + 28*Math.sin(z*6.8+level*1.9+page*.55)
+        + 17*Math.sin(z*13+level+page) + 4*Math.sin(z*44+level) + 1.8*Math.sin(z*147);
+    }
+    if (style==='mist') {
+      disk(415-page*48,51,23,'#c98c6b');
+      const colors=['#c8d5c5','#a4bbaa','#819e90','#587d70'];
+      for(let j=0;j<4;j++){
+        ctx.beginPath(); ctx.moveTo(0,h);
+        for(let x=0;x<=w;x+=2) ctx.lineTo(x,wave(x,j));
+        ctx.lineTo(w,h); ctx.closePath(); ctx.fillStyle=colors[j]; ctx.fill();
+        for(let k=0;k<60;k++) {
+          const x=random()*w, y=wave(x,j)+2+random()*12;
+          line(x,y,x+random()*8,y+2+random()*4,'#f1f1de40');
+        }
+      }
+      function pine(x,y,size) {
+        line(x,y,x-1,y-size,'#35594f',1.3);
+        for(let j=2;j<=9;j++){
+          const t=j/10, span=size*(t*.23+.02), by=y-size*(1-t);
+          line(x-span,by+span*.5,x,by,'#35594f',1.6);
+          line(x,by-1,x+span*.8,by+span*.35,'#35594f',1.4);
+        }
+      }
+      for(let i=0;i<32;i++) {
+        const x=(page===1?20:390)+random()*170;
+        pine(x,wave(x,3)+3,9+random()*24);
+      }
+      for(let i=0;i<4;i++) {
+        const x=150+i*15, y=53+Math.sin(i*2+page)*8;
+        line(x-5,y-2,x,y+1,'#64796b',1.3); line(x,y+1,x+4,y-3,'#64796b',1.3);
+      }
+    } else if(style==='print') {
+      const swatches=['#b47055','#cf9776','#75867b','#334c48'];
+      const ox=page*12;
+      ctx.fillStyle='#eee3ce'; ctx.fillRect(0,0,w,h);
+      disk(387-ox,70,48,swatches[1]);
+      // Ink arches, a checkerboard hillside and ruled furrows form one continuous print.
+      ctx.save();
+      ctx.beginPath(); ctx.arc(86+ox,250,177,Math.PI,Math.PI*2); ctx.clip();
+      ctx.fillStyle=swatches[2];ctx.fillRect(0,0,300,240);
+      for(let y=0;y<h;y+=14) for(let x=0;x<290;x+=14) {
+        if((x/14+y/14)%2===0){ctx.fillStyle='#99a496';ctx.fillRect(x,y,14,14);}
+      }
+      ctx.restore();
+      ctx.fillStyle=swatches[0];ctx.beginPath();
+      ctx.moveTo(118,240);ctx.bezierCurveTo(220,217,260,-16,345,68);
+      ctx.bezierCurveTo(393,127,415,199,510,240);ctx.fill();
+      ctx.save();
+      ctx.beginPath();ctx.moveTo(196,240);ctx.bezierCurveTo(361,238,384,62,600,98);
+      ctx.lineTo(600,240);ctx.closePath();ctx.clip();
+      ctx.fillStyle='#d4ba8b';ctx.fillRect(0,0,w,h);
+      for(let i=-18;i<40;i++){
+        ctx.beginPath();ctx.moveTo(i*16-20,262);ctx.quadraticCurveTo(i*16+80,151,i*16+138,45);
+        ctx.strokeStyle=swatches[3];ctx.lineWidth=2.6;ctx.stroke();
+      }
+      ctx.restore();
+      for(let i=0;i<4300;i++){ctx.fillStyle=i%2?'#4e463015':'#fff7e74a';ctx.fillRect(random()*w,random()*h,1.4,1.4);}
+    } else {
+      const cx=300+page*17,cy=126;
+      for(let i=0;i<108;i++){
+        const x=random()*w,y=random()*h;
+        disk(x,y,i%9===0?1.8:.85,i%5===0?'#c3a77c':'#89a8ae');
+      }
+      function orbit(rx,ry,angle,color,from=0,to=2*Math.PI) {
+        ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,angle,from,to);ctx.strokeStyle=color;ctx.lineWidth=1.35;ctx.stroke();
+      }
+      ctx.setLineDash([3,8]);orbit(212,78,-.16,'#57737d');ctx.setLineDash([]);
+      orbit(174,57,-.27,'#708888');
+      disk(cx,cy,52,'#d4c6a2');
+      ctx.save();
+      ctx.beginPath();ctx.arc(cx,cy,52,0,Math.PI*2);ctx.clip();
+      for(let i=-12;i<13;i++){
+        ctx.beginPath();ctx.moveTo(cx-70,cy+i*6-16);
+        ctx.bezierCurveTo(cx-22,cy+i*6+10,cx+10,cy+i*6-11,cx+70,cy+i*6+11);
+        ctx.strokeStyle=i%3?'#a89f86':'#b69f7b';ctx.lineWidth=2;ctx.stroke();
+      }
+      ctx.restore();
+      for(let i=0;i<4;i++)orbit(101+i*3,15+i*1.9,-.31,'#c1b79f',0,Math.PI);
+      disk(cx-165,cy+45,5,'#d8b986');disk(cx+173,cy-45,3.6,'#a7c4be');
+      for(const [x,y] of [[98,63],[480,54],[520,167]]) {
+        line(x-4,y,x+4,y,'#d7ccaf');line(x,y-4,x,y+4,'#d7ccaf');
+      }
+    }
+  }
+
+  const grid=root.querySelector('.study-grid'), tabs=root.querySelector('.study-tabs');
+  const status=root.querySelector('.study-status'), reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let current=0, visible='mist', selected=null;
+  const answers=new Map();
+  function markAnswer(sheet,question,index) {
+    const choice=answers.get(index);
+    if(choice===undefined)return;
+    sheet.querySelectorAll('.answer').forEach((button,i)=>{
+      const right=i===question.correct, wrong=i===choice && !right;
+      if(right||wrong){
+        button.dataset.mark=right?'right':'wrong';
+        button.dataset.icon=right?'✓':'×';
+      }
+      button.setAttribute('aria-disabled','true');
+    });
+    const result=sheet.querySelector('.outcome');
+    result.replaceChildren();
+    const verdict=document.createElement('strong');
+    verdict.textContent=choice===question.correct?'答对了。':'答案是'+question.options[question.correct]+'。';
+    result.append(verdict,' '+question.why);
+  }
+  function makeSheet(design,index) {
+    const q=questions[index], sheet=document.createElement('article');
+    sheet.className='sheet';
+    sheet.innerHTML='<header class="mast"><b class="brand">奇有此理</b><span class="counter"></span></header>'+
+      '<canvas class="art" aria-hidden="true"></canvas><div class="copy"><div class="meta"></div><h2 class="title"></h2><p class="clue"></p></div>'+
+      '<div class="answers"></div><p class="outcome" aria-live="polite"></p><p class="foot"></p>';
+    const count=sheet.querySelector('.counter');
+    count.innerHTML='0'+(index+1)+'<i aria-hidden="true"></i>03';
+    count.setAttribute('aria-label','第 '+(index+1)+' 题，共 3 题');
+    sheet.querySelector('.meta').textContent=q.kind+'　·　轻松';
+    sheet.querySelector('.title').textContent=q.title;
+    sheet.querySelector('.clue').textContent=q.clue;
+    sheet.querySelector('.foot').textContent=index===questions.length-1?'下滑回看':'上滑换一题';
+    q.options.forEach((label,i)=>{
+      const btn=document.createElement('button');
+      btn.type='button'; btn.className='answer'; btn.dataset.choice=i;
+      const key=document.createElement('small');key.textContent=String.fromCharCode(65+i);
+      btn.append(key,label); sheet.querySelector('.answers').append(btn);
+    });
+    illustrate(sheet.querySelector('canvas'),design.key,index);
+    return sheet;
+  }
+
+  function activatePane(key) {
+    visible=key;
+    for(const v of views) {
+      v.study.dataset.visible=String(v.key===key);
+      v.tab.setAttribute('aria-pressed',String(v.key===key));
+    }
+  }
+  function choose(key,persist) {
+    const design=designs.find(item=>item.key===key);
+    if(!design)return;
+    selected=key;
+    for(const v of views){
+      v.pick.setAttribute('aria-pressed',String(v.key===key));
+      v.pick.textContent=v.key===key?'✓ 已选':'选这款';
+    }
+    status.textContent='已选「'+design.name+'」';
+    if(persist && window.openai?.setWidgetState) {
+      Promise.resolve(window.openai.setWidgetState({modelContent:{preferredDesign:design.name},privateContent:{selected:key}})).catch(()=>{});
+    }
+  }
+  const views=designs.map(design=>{
+    const study=document.createElement('section');
+    study.className='study '+design.key;
+    study.innerHTML='<div class="study-heading"><h3></h3><button class="pick" type="button" aria-pressed="false">选这款</button></div>'+
+      '<div class="screen"><div class="track"></div></div>';
+    study.querySelector('h3').textContent=design.name;
+    const screen=study.querySelector('.screen'), track=study.querySelector('.track');
+    screen.setAttribute('aria-label',design.name+'，上下拖动或按方向键翻题');
+    const sheets=questions.map((_,index)=>makeSheet(design,index));
+    track.append(...sheets);
+    const pick=study.querySelector('.pick');
+    pick.setAttribute('aria-label','选择'+design.name);
+    pick.onclick=()=>choose(design.key,true);
+    grid.append(study);
+    const tab=document.createElement('button');
+    tab.type='button';tab.textContent=design.name;tab.onclick=()=>activatePane(design.key);tabs.append(tab);
+    return {key:design.key,study,screen,track,sheets,pick,tab};
+  });
+
+  function position(view,offset=0,animate=false) {
+    view.track.style.transition=animate&&!reduced.matches?'transform 300ms cubic-bezier(.2,.78,.21,1)':'none';
+    view.track.style.transform='translate3d(0,calc('+(-100*current)+'% + '+offset+'px),0)';
+  }
+  // All designs share the question and answer, so changing styles compares like with like.
+  function settle(next,active,animate=true) {
+    current=Math.max(0,Math.min(questions.length-1,next));
+    views.forEach(view=>{
+      position(view,0,view===active && animate);
+      view.sheets.forEach((sheet,i)=>{sheet.inert=i!==current;});
+    });
+  }
+  for(const v of views){
+    let drag=null, suppressClick=false, wheelSum=0, lastWheel=-Infinity, wheelLocked=false;
+    const screen=v.screen;
+    function sample(e) {
+      const now=performance.now();
+      drag.samples.push([now,e.clientY]);
+      while(drag.samples.length>1 && now-drag.samples[0][0]>110)drag.samples.shift();
+    }
+    screen.addEventListener('pointerdown',e=>{
+      if(!e.isPrimary || e.button!==0 || drag)return;
+      // Begin at the visible position if the user catches a page while it is settling.
+      const matrix=new DOMMatrixReadOnly(getComputedStyle(v.track).transform);
+      const startOffset=matrix.m42+current*screen.clientHeight;
+      position(v,startOffset);
+      suppressClick=false;
+      drag={id:e.pointerId,start:e.clientY,x:e.clientX,offset:startOffset,dy:0,moved:false,samples:[]};
+      sample(e);
+    });
+    screen.addEventListener('pointermove',e=>{
+      if(!drag || drag.id!==e.pointerId)return;
+      const dy=e.clientY-drag.start, dx=e.clientX-drag.x;
+      if(!drag.moved && Math.max(Math.abs(dy),Math.abs(dx))<6)return;
+      if(!drag.moved && Math.abs(dx)>Math.abs(dy)*1.3) {
+        suppressClick=true;drag=null;position(v,0,true);return;
+      }
+      if(!drag.moved){screen.setPointerCapture(e.pointerId);drag.moved=true;}
+      suppressClick=true;
+      drag.dy=dy;sample(e);
+      const h=screen.clientHeight;
+      const upper=current===0?0:h, lower=current===questions.length-1?0:-h;
+      position(v,Math.max(lower,Math.min(upper,drag.offset+dy)));
+    });
+    function release(e,cancelled) {
+      if(!drag || drag.id!==e.pointerId)return;
+      const d=drag; sample(e);drag=null;
+      if(screen.hasPointerCapture(e.pointerId))screen.releasePointerCapture(e.pointerId);
+      const dy=e.clientY-d.start, first=d.samples[0],last=d.samples[d.samples.length-1];
+      const speed=(last[1]-first[1])/Math.max(1,last[0]-first[0]);
+      const commit=!cancelled && d.moved && (Math.abs(dy+d.offset)>screen.clientHeight*.23 ||
+        (Math.abs(dy)>20 && Math.abs(speed)>.5 && Math.sign(speed)===Math.sign(dy)));
+      settle(current+(commit?-Math.sign(dy):0),v);
+    }
+    screen.addEventListener('pointerup',e=>release(e,false));
+    screen.addEventListener('pointercancel',e=>release(e,true));
+    screen.addEventListener('pointerleave',e=>{if(drag && !drag.moved)release(e,true);});
+    screen.addEventListener('lostpointercapture',e=>{
+      // Touch starts with implicit capture on the pressed child. Its release
+      // bubbles here when the screen takes capture for a drag.
+      if(e.target===screen && drag && drag.moved)release(e,true);
+    });
+    screen.addEventListener('click',e=>{
+      if(suppressClick && e.detail){suppressClick=false;return;}
+      const btn=e.target.closest('.answer');
+      if(!btn || answers.has(current) || !v.sheets[current].contains(btn))return;
+      answers.set(current,Number(btn.dataset.choice));
+      views.forEach(view=>markAnswer(view.sheets[current],questions[current],current));
+    });
+    screen.addEventListener('wheel',e=>{
+      if(e.ctrlKey || Math.abs(e.deltaX)>Math.abs(e.deltaY) || drag)return;
+      const now=performance.now();
+      if(now-lastWheel>160){wheelSum=0;wheelLocked=false;}
+      lastWheel=now;
+      if(!wheelLocked && ((current===0 && e.deltaY<0)||(current===questions.length-1 && e.deltaY>0)))return;
+      e.preventDefault();
+      if(wheelLocked)return;
+      wheelSum+=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?screen.clientHeight:1);
+      if(Math.abs(wheelSum)>=32){wheelLocked=true;settle(current+Math.sign(wheelSum),v);}
+    },{passive:false});
+    screen.addEventListener('keydown',e=>{
+      if(!['ArrowDown','ArrowUp'].includes(e.key))return;
+      e.preventDefault();
+      settle(current+(e.key==='ArrowDown'?1:-1),v);
+      v.sheets[current].querySelector('.answer').focus({preventScroll:true});
+    });
+  }
+  activatePane(visible);
+  settle(0,null,false);
+  function restore(state){if(state?.privateContent?.selected!==selected)choose(state?.privateContent?.selected,false);}
+  restore(window.openai?.widgetState);
+  window.addEventListener('openai:set_globals',e=>restore(e.detail?.globals?.widgetState));
+})();
+</script>
